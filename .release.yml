@@ -5,5 +5,8 @@ locations:
     paths:
       - 'README.md'
     patterns:
+      # Actions
       - '42ByteLabs/patch-release-me@v([0-9]\.[0-9]\.[0-9])'
+      # Containers
+      - 'ghcr.io/42bytelabs/patch-release-me:([0-9]\.[0-9]\.[0-9])'
 
