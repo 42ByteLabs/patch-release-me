@@ -1,13 +1,18 @@
 [package]
 name = "patch-release-me"
 version = "0.1.0"
-edition = "2021"
+license = "MIT"
+description = "A tool to automate patching of your projects before you release them"
+
+documentation = "https://docs.rs/patch-release-me"
+readme = "README.md"
+repository = "https://github.com/42ByteLabs/patch-release-me"
 
 authors = ["GeekMasher"]
 
+edition = "2021"
 rust-version = "1.70"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 # CLI parser
