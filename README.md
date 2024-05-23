@@ -40,6 +40,32 @@ cargo install patch-release-me
 cargo install --git https://github.com/42ByteLabs/patch-release-me
 ```
 
+## Configuration
+
+```yaml
+# [optional]: name of the software you are releasing
+name: "patch-release-me"
+#[optional]: Are the default release locations added
+default: true
+
+# Patch Locations
+locations:
+  # Array of objects
+  # Name of the patch
+  - name: "Docs Patch"
+    paths:
+      # Glob supported path to the files you want to patch
+      - 'Cargo.toml'
+    # [optional]: Exclude dirs/files
+    excludes:
+      - '/target/'
+    # Patterns to use to patch the files
+    patterns:
+      # Regex Patterns to find what version you want to patch which requires
+      # a capture group `(...)`. The patterns are checks are runtime.
+      - 'version = "([0-9]\.[0-9]\.[0.9])"'
+```
+
 ## 🦸 Support
 
 Please create [GitHub Issues][github-issues] if there are bugs or feature requests.
