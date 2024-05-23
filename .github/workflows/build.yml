@@ -1,0 +1,47 @@
+name: Build and Test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+    
+      - uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36
+        id: changes
+        with:
+          filters: |
+            src:
+              - '**/Cargo.*'
+              - 'rust-toolchain.toml'
+              - 'src/**'
+
+      - uses: dtolnay/rust-toolchain@nightly
+        if: steps.changes.outputs.src == 'true'
+        with:
+          components: clippy,rustfmt
+
+      - name: Build
+        if: steps.changes.outputs.src == 'true'
+        run: |
+          cargo build
+
+      - name: Formatting Checks
+        if: steps.changes.outputs.src == 'true'
+        run: |
+          cargo fmt --check
+
+      - name: Run Analysis
+        if: steps.changes.outputs.src == 'true'
+        run: |
+          cargo clippy --all-targets
