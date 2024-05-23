@@ -3,6 +3,8 @@
 <h1>Patch Release Me</h1>
 
 [![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)][github]
+[![Crates.io Version](https://img.shields.io/crates/v/patch-release-me?style=for-the-badge)][crates-io]
+[![Crates.io Downloads (recent)](https://img.shields.io/crates/dr/patch-release-me?style=for-the-badge)][crates-io]
 [![GitHub Stars](https://img.shields.io/github/stars/42ByteLabs/patch-release-me?style=for-the-badge)][github]
 [![Licence](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=for-the-badge)][license]
 
@@ -99,5 +101,4 @@ Please refer to [MIT][license] for the full terms.
 [semver]: https://semver.org/
 [github]: https://github.com/42ByteLabs/patch-release-me
 [github-issues]: https://github.com/42ByteLabs/patch-release-me/issues
-
-
+[crates-io]: https://crates.io/crates/patch-release-me
