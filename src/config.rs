@@ -46,7 +46,7 @@ impl Default for Config {
 pub struct LocationPattern {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
-
+    #[serde(default)]
     pub r#type: LocationType,
 
     pub paths: Vec<PathBuf>,
