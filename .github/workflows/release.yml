@@ -1,0 +1,20 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version"
+        type: string
+        required: true
+
+jobs:
+  docker-release:
+    # https://github.com/42ByteLabs/.github/tree/main/.github/workflows
+    uses: 42ByteLabs/.github:.github/workflows/container.yml@main
+    secrets: inherit
+    with:
+      version: '${{ inputs.version }}'
+
+
+
