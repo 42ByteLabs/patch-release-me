@@ -11,7 +11,7 @@ on:
 jobs:
   docker-release:
     # https://github.com/42ByteLabs/.github/tree/main/.github/workflows
-    uses: 42ByteLabs/.github:.github/workflows/container.yml@main
+    uses: 42ByteLabs/.github/.github/workflows/container.yml@main
     secrets: inherit
     with:
       version: '${{ inputs.version }}'
