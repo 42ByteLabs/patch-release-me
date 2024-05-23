@@ -36,6 +36,11 @@ jobs:
         run: |
           cargo build
 
+      - name: Build
+        if: steps.changes.outputs.src == 'true'
+        run: |
+          cargo test
+
       - name: Formatting Checks
         if: steps.changes.outputs.src == 'true'
         run: |
