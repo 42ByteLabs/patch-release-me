@@ -8,8 +8,13 @@ on:
         type: string
         required: true
 
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+
 jobs:
-  docker-release:
+ docker-release:
     # https://github.com/42ByteLabs/.github/tree/main/.github/workflows
     uses: 42ByteLabs/.github/.github/workflows/container.yml@main
     secrets: inherit
