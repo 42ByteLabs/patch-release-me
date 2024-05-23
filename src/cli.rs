@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 use console::style;
-use std::{path::PathBuf, str::FromStr};
+use std::path::PathBuf;
 
 pub const VERSION_NUMBER: &str = env!("CARGO_PKG_VERSION");
 pub const AUTHOR: &str = env!("CARGO_PKG_AUTHORS");
