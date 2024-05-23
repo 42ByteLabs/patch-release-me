@@ -1,0 +1,9 @@
+name: "patch-release-me"
+
+locations:
+  - name: "Actions Docs"
+    paths:
+      - 'README.md'
+    patterns:
+      - '42ByteLabs/patch-release-me@v([0-9]\.[0-9]\.[0-9])'
+
