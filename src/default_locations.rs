@@ -10,14 +10,21 @@ pub fn default_locations() -> Vec<LocationPattern> {
         LocationPattern {
             name: Some(String::from("Default - Rust Cargo")),
             paths: vec![PathBuf::from("Cargo.toml"), PathBuf::from("**/Cargo.toml")],
-            excludes: vec![String::from("/crates/")],
+            excludes: vec![
+                // Crates and target directories
+                String::from("/crates/"),
+                String::from("/target/"),
+            ],
             regexes: vec![Regex::new(r#"\nversion\s*=\s*"([0-9]+\.[0-9]+\.[0-9])""#).unwrap()],
             ..Default::default()
         },
         // Python
         LocationPattern {
             name: Some(String::from("Default - Python Pyproject")),
-            paths: vec![PathBuf::from("pyproject.toml")],
+            paths: vec![
+                // Pyproject.toml
+                PathBuf::from("pyproject.toml"),
+            ],
             regexes: vec![Regex::new(r#"\nversion\s*=\s*"([0-9]+\.[0-9]+\.[0-9])""#).unwrap()],
             ..Default::default()
         },
