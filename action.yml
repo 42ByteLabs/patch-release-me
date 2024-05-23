@@ -10,8 +10,13 @@ inputs:
     description: GitHub Personal Access Token
     default: ${{ github.token }}
 
+  mode:
+    description: Patch Release Mode
+    default: display
+
 runs:
   # https://docs.github.com/en/enterprise-cloud@latest/actions/creating-actions/creating-a-docker-container-action
   using: "docker"
   image: "actions/Dockerfile"
-
+  args:
+    - ${{ inputs.mode }}
