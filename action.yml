@@ -1,0 +1,17 @@
+name: 'patch-release-me'
+description: 'Patch Release Me GitHub Action'
+
+inputs:
+  repository:
+    description: Repository owner and repo name
+    default: ${{ github.repository }}
+
+  token:
+    description: GitHub Personal Access Token
+    default: ${{ github.token }}
+
+runs:
+  # https://docs.github.com/en/enterprise-cloud@latest/actions/creating-actions/creating-a-docker-container-action
+  using: "docker"
+  image: "actions/Dockerfile"
+
