@@ -34,22 +34,28 @@ fn main() -> Result<()> {
     let mode = match &arguments.commands {
         Some(ArgumentCommands::Bump {
             set_version,
+            mode,
             patch,
             minor,
             major,
         }) => {
             debug!("Bump Mode");
 
-            let bump_mode = if !set_version.is_empty() {
-                BumpMode::Version(set_version.clone())
-            } else if *patch {
-                BumpMode::Patch
-            } else if *minor {
-                BumpMode::Minor
-            } else if *major {
-                BumpMode::Major
-            } else {
-                BumpMode::Patch
+            let bump_mode = match mode {
+                Some(mode) => BumpMode::from(mode),
+                None => {
+                    if !set_version.is_empty() {
+                        BumpMode::Version(set_version.clone())
+                    } else if *patch {
+                        BumpMode::Patch
+                    } else if *minor {
+                        BumpMode::Minor
+                    } else if *major {
+                        BumpMode::Major
+                    } else {
+                        BumpMode::Patch
+                    }
+                }
             };
 
             WorkflowMode::Bump(bump_mode)

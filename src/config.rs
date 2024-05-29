@@ -41,6 +41,17 @@ impl Default for Config {
     }
 }
 
+impl From<&String> for BumpMode {
+    fn from(s: &String) -> Self {
+        match s.as_str() {
+            "patch" => BumpMode::Patch,
+            "minor" => BumpMode::Minor,
+            "major" => BumpMode::Major,
+            _ => BumpMode::Patch,
+        }
+    }
+}
+
 /// Location Pattern to match a file path and a regex pattern
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct LocationPattern {

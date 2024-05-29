@@ -43,6 +43,10 @@ pub enum ArgumentCommands {
         /// Set Version
         #[clap(short, long, env, default_value = "")]
         set_version: String,
+
+        #[clap(short, long, env)]
+        mode: Option<String>,
+
         /// Update Patch version
         #[clap(long, default_value = "true")]
         patch: bool,
