@@ -6,9 +6,18 @@ use crate::LocationPattern;
 
 pub fn default_locations() -> Vec<LocationPattern> {
     vec![
+        // Release File
+        LocationPattern {
+            name: String::from("Release File"),
+            default: true,
+            paths: vec![PathBuf::from(".release.yml")],
+            regexes: vec![Regex::new(r#"version:\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?"#).unwrap()],
+            ..Default::default()
+        },
         // Cargo.toml Version
         LocationPattern {
-            name: Some(String::from("Default - Rust Cargo")),
+            name: String::from("Rust Cargo"),
+            default: true,
             paths: vec![PathBuf::from("**/Cargo.toml")],
             excludes: vec![
                 // Crates and target directories
@@ -20,7 +29,8 @@ pub fn default_locations() -> Vec<LocationPattern> {
         },
         // Python
         LocationPattern {
-            name: Some(String::from("Default - Python Pyproject")),
+            name: String::from("Python Pyproject"),
+            default: true,
             paths: vec![
                 // Pyproject.toml
                 PathBuf::from("pyproject.toml"),
@@ -29,7 +39,8 @@ pub fn default_locations() -> Vec<LocationPattern> {
             ..Default::default()
         },
         LocationPattern {
-            name: Some(String::from("Default - Python Init / Version")),
+            name: String::from("Python Init / Version"),
+            default: true,
             paths: vec![
                 PathBuf::from("**/__init__.py"),
                 PathBuf::from("**/__version__.py"),
@@ -38,6 +49,14 @@ pub fn default_locations() -> Vec<LocationPattern> {
             regexes: vec![
                 Regex::new(r#"__version__\s*=\s*["|']([0-9]+\.[0-9]+\.[0-9])["|']"#).unwrap(),
             ],
+            ..Default::default()
+        },
+        // Node / NPM
+        LocationPattern {
+            name: String::from("Node Package"),
+            default: true,
+            paths: vec![PathBuf::from("**/package.json")],
+            regexes: vec![Regex::new(r#"\n"version"\s*:\s*"([0-9]+\.[0-9]+\.[0-9])""#).unwrap()],
             ..Default::default()
         },
     ]
