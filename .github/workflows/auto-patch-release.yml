@@ -1,0 +1,19 @@
+name: Update Release
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: string
+        required: true
+        default: minor
+
+jobs:
+  auto-update:
+    # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/auto-patch-release.yml
+    uses: 42ByteLabs/.github/.github/workflows/auto-patch-release.yml@main
+    secrets: inherit
+    with:
+      mode: ${{ inputs.mode }}
