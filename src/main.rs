@@ -2,6 +2,7 @@
 #![deny(missing_docs)]
 use anyhow::Result;
 use log::debug;
+use log::info;
 use log::warn;
 
 mod cli;
@@ -16,7 +17,8 @@ use crate::config::*;
 use crate::interactive::*;
 use crate::workflows::*;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let arguments = init();
     debug!("Finished initialising, starting main workflow...");
 
@@ -35,27 +37,36 @@ fn main() -> Result<()> {
         Some(ArgumentCommands::Bump {
             set_version,
             mode,
-            patch,
+            patch: _,
             minor,
             major,
         }) => {
             debug!("Bump Mode");
 
-            let bump_mode = match mode {
-                Some(mode) => BumpMode::from(mode),
-                None => {
-                    if !set_version.is_empty() {
-                        BumpMode::Version(set_version.clone())
-                    } else if *patch {
-                        BumpMode::Patch
-                    } else if *minor {
-                        BumpMode::Minor
-                    } else if *major {
-                        BumpMode::Major
-                    } else {
-                        BumpMode::Patch
-                    }
-                }
+            let cli_mode = if *minor {
+                BumpMode::Minor
+            } else if *major {
+                BumpMode::Major
+            } else {
+                BumpMode::Patch
+            };
+            debug!("CLI Mode: {:?}", cli_mode);
+
+            let bump_mode = if !set_version.is_empty() {
+                debug!("Manually setting version: {}", set_version);
+                BumpMode::Version(set_version.clone())
+            } else if let Some(mode) = mode {
+                debug!("Setting mode: {} (dynamic)", mode);
+                BumpMode::from(mode)
+            } else if let Some(ref version) = config.version {
+                debug!("Setting mode: Version (from config)");
+                // Update version from config file
+                let mut new_version = semver::Version::parse(version)?;
+                update_version(&mut new_version, &cli_mode);
+
+                BumpMode::Version(new_version.to_string())
+            } else {
+                cli_mode
             };
 
             WorkflowMode::Bump(bump_mode)
@@ -74,8 +85,9 @@ fn main() -> Result<()> {
         WorkflowMode::Display => {
             workflow.display()?;
         }
-        WorkflowMode::Bump(_) => {
-            workflow.patch()?;
+        WorkflowMode::Bump(mode) => {
+            info!("Bumping version - {:?}", mode);
+            workflow.patch().await?;
         }
     }
 

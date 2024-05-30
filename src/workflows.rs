@@ -63,7 +63,8 @@ impl Workflow {
         Ok(())
     }
 
-    pub fn patch(&self) -> Result<()> {
+    /// Patch Mode - Update the versions
+    pub async fn patch(&self) -> Result<()> {
         self.process(|path, captures| {
             let mut content = std::fs::read_to_string(&path)?;
 
@@ -209,7 +210,7 @@ impl WorkflowBuilder {
     }
 }
 
-fn update_version(version: &mut semver::Version, bump_mode: &BumpMode) {
+pub(crate) fn update_version(version: &mut semver::Version, bump_mode: &BumpMode) {
     match bump_mode {
         BumpMode::Patch => {
             version.patch += 1;
