@@ -10,6 +10,10 @@ on:
         required: true
         default: minor
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   auto-update:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/auto-patch-release.yml
