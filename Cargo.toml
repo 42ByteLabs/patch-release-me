@@ -1,6 +1,6 @@
 [package]
 name = "patch-release-me"
-version = "0.1.4"
+version = "0.1.5"
 license = "MIT"
 description = "A tool to automate patching of your projects before you release them"
 
@@ -13,6 +13,8 @@ authors = ["GeekMasher"]
 edition = "2021"
 rust-version = "1.70"
 
+[features]
+default = []
 
 [dependencies]
 # CLI parser
@@ -25,9 +27,13 @@ anyhow = "1"
 # logging
 log = "0.4"
 env_logger = "0.11"
+# tokio
+tokio = { version = "1", features = ["full"] }
 # serde
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
+
 regex = "1.10.4"
 glob = "0.3.1"
 semver = { version = "1.0.22", features = ["serde"] }
+
