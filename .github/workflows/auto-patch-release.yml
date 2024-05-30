@@ -20,4 +20,5 @@ jobs:
     uses: 42ByteLabs/.github/.github/workflows/auto-patch-release.yml@main
     secrets: inherit
     with:
-      mode: ${{ inputs.mode }}
+      # mode: ${{ inputs.mode }}
+      mode: "bump"
