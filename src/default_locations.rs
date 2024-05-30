@@ -9,7 +9,7 @@ pub fn default_locations() -> Vec<LocationPattern> {
         // Cargo.toml Version
         LocationPattern {
             name: Some(String::from("Default - Rust Cargo")),
-            paths: vec![PathBuf::from("Cargo.toml"), PathBuf::from("**/Cargo.toml")],
+            paths: vec![PathBuf::from("**/Cargo.toml")],
             excludes: vec![
                 // Crates and target directories
                 String::from("/crates/"),
