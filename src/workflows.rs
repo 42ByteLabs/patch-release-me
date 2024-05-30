@@ -73,17 +73,17 @@ impl Workflow {
                 let start = data.start();
                 let end = data.end();
 
+                let location = format!("{}#{}-{}", path.display(), start, end);
+
                 if let WorkflowMode::Bump(ref mode) = self.mode {
                     let mut new_version = version.clone();
                     update_version(&mut new_version, mode);
 
                     info!(
-                        "{:>8} -> {:<8} :: {}#{}-{}",
+                        "{:>8} -> {:<8} :: {}",
                         style(data.as_str()).red(),
                         style(new_version.clone()).green(),
-                        path.display(),
-                        start,
-                        end
+                        location
                     );
 
                     content.replace_range(start..end, new_version.to_string().as_str());
