@@ -6,10 +6,14 @@ use std::{fmt::Display, path::PathBuf};
 
 use crate::default_locations::default_locations;
 
+/// Bump mode for the version
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BumpMode {
+    /// Patch version (x.y.Z -> x.y.Z+1)
     Patch,
+    /// Minor version (x.Y.z -> x.Y+1.0)
     Minor,
+    /// Major version (X.y.z -> X+1.0.0)
     Major,
     /// Set the version to the specified version
     Version(String),
@@ -18,14 +22,18 @@ pub enum BumpMode {
 /// Configuration settings
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
+    /// Name of the project
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    /// Repository of the project
     #[serde(skip_serializing_if = "Option::is_none")]
     pub repository: Option<String>,
-
+    /// Version to set
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub version: Option<String>,
+    /// If Default locations should be used or not
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<bool>,
-
     /// Update versions in these locations
     pub locations: Vec<LocationPattern>,
 }
@@ -35,6 +43,7 @@ impl Default for Config {
         Self {
             name: None,
             repository: None,
+            version: None,
             default: Some(true),
             locations: default_locations(),
         }
@@ -55,18 +64,24 @@ impl From<&String> for BumpMode {
 /// Location Pattern to match a file path and a regex pattern
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct LocationPattern {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
+    /// Nameo of the LocationPattern
+    #[serde(default = "String::new")]
+    pub name: String,
+    /// Type of the location
     #[serde(default)]
     pub r#type: LocationType,
+    /// If this is a default location
+    #[serde(skip, default)]
+    pub default: bool,
 
+    /// Paths to match
     pub paths: Vec<PathBuf>,
-
+    /// Patterns to match
     pub patterns: Vec<String>,
-
+    /// Excludes to ignore
     #[serde(default = "Vec::new")]
     pub excludes: Vec<String>,
-
+    /// Regexes to match (this is not serialized)
     #[serde(skip)]
     pub regexes: Vec<Regex>,
 }
@@ -79,6 +94,11 @@ pub enum LocationType {
 }
 
 impl Config {
+    /// If default locations should be used
+    pub fn use_default(&self) -> bool {
+        self.default.unwrap_or(true)
+    }
+
     /// Load YAML the configuration from a file path
     pub fn load(root: &PathBuf, path: &PathBuf) -> Result<Self> {
         let resroot = root.canonicalize()?;
@@ -91,14 +111,16 @@ impl Config {
             .map_err(|e| anyhow::anyhow!("Failed to read configuration file: {:?}", e))?;
         let mut config: Self = serde_yaml::from_str(&config_data)?;
 
-        if let Some(def) = config.default {
-            if def {
-                debug!("Using default locations");
-                config.locations.extend(default_locations());
-            }
-        } else {
-            debug!("Using default locations");
-            config.locations.extend(default_locations());
+        if config.use_default() {
+            // TODO: Can this be done better?
+            let user_locations = config.locations.clone();
+
+            config.locations = default_locations();
+            debug!(
+                "Using default locations ({} locations)",
+                config.locations.len()
+            );
+            config.locations.extend(user_locations);
         }
 
         info!("Configuration loaded successfully");
@@ -126,10 +148,10 @@ impl LocationPattern {
 
 impl Display for LocationPattern {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if let Some(name) = &self.name {
-            write!(f, "{}", name)
+        if self.default {
+            write!(f, "Default - {}", self.name)
         } else {
-            write!(f, "{:?}", self.paths)
+            write!(f, "{}", self.name)
         }
     }
 }
