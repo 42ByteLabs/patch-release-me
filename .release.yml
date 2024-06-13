@@ -1,4 +1,5 @@
 name: "patch-release-me"
+version: "0.1.6"
 
 locations:
   - name: "Actions Docs"
