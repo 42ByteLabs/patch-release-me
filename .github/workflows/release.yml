@@ -1,12 +1,9 @@
 name: Release
 
 on:
+  push:
+    branches: [ main ]
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Version"
-        type: string
-        required: true
 
 permissions:
   id-token: write
