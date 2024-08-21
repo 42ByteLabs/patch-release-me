@@ -430,7 +430,7 @@ dependencies = [
 
 [[package]]
 name = "patch-release-me"
-version = "0.1.7"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -439,6 +439,7 @@ dependencies = [
  "env_logger",
  "glob",
  "indicatif",
+ "lazy_static",
  "log",
  "regex",
  "semver",

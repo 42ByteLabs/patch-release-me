@@ -1,0 +1,64 @@
+
+ecosystems:
+  Rust:
+    - Cargo
+  Python:
+    - Pip
+  JavaScript:
+    - NPM
+    - NodeJS
+    - Yarn
+
+locations:
+  - name: "Release File"
+    paths:
+      - .release.yml
+      - .release.yaml
+    ecosystems:
+      - All
+    patterns:
+      - version:\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?
+
+  # Rust
+  - name: "Rust Cargo"
+    paths:
+      - Cargo.toml
+    ecosystems:
+      - Rust
+    excludes:
+      - /crates/
+      - /target/
+      - /examples/
+    patterns:
+      - version\s*=\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?
+
+  # Python
+  - name: "Python Pyproject"
+    paths:
+      - pyproject.toml
+    ecosystems:
+      - Python
+    patterns:
+      - version\s*=\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?
+
+  - name: "Python Init / Version"
+    paths:
+      - "**/__init__.py"
+      - "**/__version__.py"
+    ecosystems:
+      - Python
+    excludes:
+      - "/__pycache__/"
+      - "/vendor/"
+    patterns:
+      - __version__\s*=\s*["|']([0-9]+\.[0-9]+\.[0-9])["|']
+  
+  # JavaScript / TypeScript
+  - name: "Node Package"
+    paths:
+      - package.json
+    ecosystems: 
+      - JavaScript
+      - NodeJS
+    patterns:
+      - version\":\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?"

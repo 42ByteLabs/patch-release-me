@@ -4,7 +4,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::{fmt::Display, path::PathBuf};
 
-use crate::default_locations::default_locations;
+use crate::defaults::Defaults;
 
 /// Bump mode for the version
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -35,6 +35,7 @@ pub struct Config {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<bool>,
     /// Update versions in these locations
+    #[serde(default = "Vec::new", skip_serializing_if = "Vec::is_empty")]
     pub locations: Vec<LocationPattern>,
 }
 
@@ -45,7 +46,7 @@ impl Default for Config {
             repository: None,
             version: None,
             default: Some(true),
-            locations: default_locations(),
+            locations: Vec::new(),
         }
     }
 }
@@ -68,18 +69,24 @@ pub struct LocationPattern {
     #[serde(default = "String::new")]
     pub name: String,
     /// Type of the location
-    #[serde(default)]
+    #[serde(default, skip_serializing)]
+    #[allow(dead_code)]
     pub r#type: LocationType,
     /// If this is a default location
     #[serde(skip, default)]
     pub default: bool,
 
+    #[serde(default = "Vec::new", skip_serializing)]
+    pub ecosystems: Vec<String>,
+
     /// Paths to match
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub paths: Vec<PathBuf>,
     /// Patterns to match
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub patterns: Vec<String>,
     /// Excludes to ignore
-    #[serde(default = "Vec::new")]
+    #[serde(default = "Vec::new", skip_serializing_if = "Vec::is_empty")]
     pub excludes: Vec<String>,
     /// Regexes to match (this is not serialized)
     #[serde(skip)]
@@ -111,21 +118,27 @@ impl Config {
             .map_err(|e| anyhow::anyhow!("Failed to read configuration file: {:?}", e))?;
         let mut config: Self = serde_yaml::from_str(&config_data)?;
 
+        // Defaults
         if config.use_default() {
-            // TODO: Can this be done better?
-            let user_locations = config.locations.clone();
-
-            config.locations = default_locations();
+            let defaults = Defaults::load()?;
             debug!(
                 "Using default locations ({} locations)",
                 config.locations.len()
             );
-            config.locations.extend(user_locations);
+            config.locations.extend(defaults.locations);
         }
 
         info!("Configuration loaded successfully");
 
         Ok(config)
+    }
+
+    /// Write the configuration to a file path
+    pub fn write(&self, path: &PathBuf) -> Result<()> {
+        let config_data = serde_yaml::to_string(&self)?;
+        std::fs::write(path, config_data)?;
+
+        Ok(())
     }
 }
 
