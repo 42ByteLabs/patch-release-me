@@ -11,6 +11,7 @@ ecosystems:
 
 locations:
   - name: "Release File"
+    default: true
     paths:
       - .release.yml
       - .release.yaml
@@ -21,8 +22,9 @@ locations:
 
   # Rust
   - name: "Rust Cargo"
+    default: true
     paths:
-      - Cargo.toml
+      - "**/Cargo.toml"
     ecosystems:
       - Rust
     excludes:
@@ -30,10 +32,11 @@ locations:
       - /target/
       - /examples/
     patterns:
-      - version\s*=\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?
+      - \nversion\s*=\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?
 
   # Python
   - name: "Python Pyproject"
+    default: true
     paths:
       - pyproject.toml
     ecosystems:
@@ -42,6 +45,7 @@ locations:
       - version\s*=\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?
 
   - name: "Python Init / Version"
+    default: true
     paths:
       - "**/__init__.py"
       - "**/__version__.py"
@@ -55,10 +59,11 @@ locations:
   
   # JavaScript / TypeScript
   - name: "Node Package"
+    default: true
     paths:
-      - package.json
+      - "**/package.json"
     ecosystems: 
       - JavaScript
       - NodeJS
     patterns:
-      - version\":\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?"
+      - \"version\":\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?"

@@ -1,6 +1,6 @@
 [package]
 name = "patch-release-me"
-version = "0.2.0"
+version = "0.2.1"
 license = "MIT"
 description = "A tool to automate patching of your projects before you release them"
 
@@ -35,6 +35,6 @@ serde_yaml = "0.9"
 
 regex = "1.10.6"
 glob = "0.3.1"
-semver = { version = "0.2.0", features = ["serde"] }
+semver = { version = "1", features = ["serde"] }
 lazy_static = "1.4.0"
 
