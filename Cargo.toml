@@ -35,6 +35,6 @@ serde_yaml = "0.9"
 
 regex = "1.10.6"
 glob = "0.3.1"
-semver = { version = "1.0.22", features = ["serde"] }
+semver = { version = "0.2.0", features = ["serde"] }
 lazy_static = "1.4.0"
 
