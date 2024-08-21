@@ -1,22 +1,105 @@
-use crate::{config::BumpMode, WorkflowMode};
+use crate::{config::BumpMode, defaults::Defaults, WorkflowMode};
 use anyhow::{anyhow, Result};
 use dialoguer::Select;
+use log::debug;
 
 pub fn select_mode() -> Result<WorkflowMode> {
     let selection = Select::new()
         .with_prompt("Select Mode")
         .default(0)
+        .item("Init")
         .item("Display")
         .item("Bump")
         .interact()?;
+
     match selection {
-        0 => Ok(WorkflowMode::Display),
-        1 => {
+        0 => Ok(interactive_init()?),
+        1 => Ok(WorkflowMode::Display),
+        2 => {
             let bump_mode = select_bump_mode()?;
             Ok(WorkflowMode::Bump(bump_mode))
         }
         _ => Err(anyhow!("Invalid selection")),
     }
+}
+
+pub fn interactive_init() -> Result<WorkflowMode> {
+    let name = dialoguer::Input::<String>::new()
+        .with_prompt("Enter Project Name")
+        .default(find_project_name()?)
+        .interact()?;
+
+    let version = dialoguer::Input::<String>::new()
+        .with_prompt("Enter Version")
+        .default("0.1.0".to_string())
+        .interact()?;
+
+    let use_defaults = dialoguer::Confirm::new()
+        .with_prompt("Use Default Locations?")
+        .default(true)
+        .interact()?;
+
+    let defaults = dialoguer::Confirm::new()
+        .with_prompt("Inline Defaults?")
+        .default(false)
+        .interact()?;
+
+    let language_ecosystems = if defaults {
+        let defaults = Defaults::load()?;
+        let mut lang_list = defaults.get_languages();
+        lang_list.sort();
+
+        let lang_index = dialoguer::MultiSelect::new()
+            .with_prompt("Select Language Ecosystems")
+            .items(&lang_list)
+            .interact()?;
+
+        lang_list
+            .iter()
+            .enumerate()
+            .filter_map(|(i, &ref lang)| {
+                if lang_index.contains(&i) {
+                    Some(lang.to_string())
+                } else {
+                    None
+                }
+            })
+            .collect()
+    } else {
+        vec![]
+    };
+    debug!("Language Ecosystems: {:?}", language_ecosystems);
+
+    // Use git to get the repository using command
+    let repository: Option<String> = match std::process::Command::new("git")
+        .arg("remote")
+        .arg("get-url")
+        .arg("origin")
+        .output()
+    {
+        Ok(output) => {
+            let mut repo = String::from_utf8(output.stdout)?.trim().to_string();
+            // Remove the .git extension
+            if repo.ends_with(".git") {
+                repo = repo.trim_end_matches(".git").to_string();
+            }
+            // Remove the git@
+            if repo.starts_with("git@") {
+                repo = repo.trim_start_matches("git@").to_string();
+                repo = repo.replace("github.com:", "");
+            }
+            Some(repo)
+        }
+        Err(_) => None,
+    };
+
+    Ok(WorkflowMode::Init {
+        name: Some(name),
+        version: Some(version),
+        repository,
+        language_ecosystems,
+        enable_defaults: Some(use_defaults),
+    })
 }
 
 pub fn select_bump_mode() -> Result<BumpMode> {
@@ -41,4 +124,14 @@ pub fn select_bump_mode() -> Result<BumpMode> {
         }
         _ => Err(anyhow!("Invalid selection")),
     }
+}
+
+fn find_project_name() -> Result<String> {
+    let current_dir = std::env::current_dir()?;
+    let project_name = current_dir
+        .file_name()
+        .ok_or_else(|| anyhow!("Failed to get current directory"))?
+        .to_str()
+        .ok_or_else(|| anyhow!("Failed to convert path to string"))?;
+    Ok(project_name.to_string())
 }

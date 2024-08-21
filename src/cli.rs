@@ -38,6 +38,19 @@ pub struct Arguments {
 
 #[derive(Subcommand, Debug)]
 pub enum ArgumentCommands {
+    Init {
+        #[clap(short, long, env)]
+        name: Option<String>,
+
+        #[clap(short, long, env)]
+        version: Option<String>,
+
+        #[clap(short, long, env)]
+        language_ecosystems: Vec<String>,
+
+        #[clap(short, long, env, default_value = "false")]
+        defaults: Option<bool>,
+    },
     Display,
     Bump {
         /// Set Version

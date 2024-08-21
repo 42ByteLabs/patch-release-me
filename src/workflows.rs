@@ -7,6 +7,13 @@ use crate::config::{BumpMode, LocationPattern};
 
 #[derive(Debug, Clone)]
 pub enum WorkflowMode {
+    Init {
+        name: Option<String>,
+        version: Option<String>,
+        repository: Option<String>,
+        language_ecosystems: Vec<String>,
+        enable_defaults: Option<bool>,
+    },
     Bump(BumpMode),
     Display,
 }
@@ -56,6 +63,7 @@ impl Workflow {
                             end
                         );
                     }
+                    _ => {}
                 };
             }
             Ok(())
@@ -188,11 +196,15 @@ impl WorkflowBuilder {
         self.mode = Some(mode);
         self
     }
+
+    /// Add locations to the workflow
     pub fn locations(mut self, locations: Vec<LocationPattern>) -> Result<Self> {
         // Compile regexes
         for location in &locations {
             let mut new_location = location.clone();
             if new_location.regexes.is_empty() {
+                // TODO: Support replacement ${...} syntax
+
                 new_location.regexes = LocationPattern::regexes(&location.patterns)?;
             }
 
