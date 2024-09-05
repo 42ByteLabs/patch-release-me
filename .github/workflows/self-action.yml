@@ -15,5 +15,5 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: "Run Action"
-        uses: 42ByteLabs/patch-release-me@0.1.5
+        uses: 42ByteLabs/patch-release-me@0.3.0
 
