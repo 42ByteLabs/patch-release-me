@@ -15,3 +15,9 @@ jobs:
     secrets: inherit
     with:
       crate: patch-release-me
+
+  container-publish:
+    # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/container.yml
+    uses: 42ByteLabs/.github/.github/workflows/container.yml@main
+    needs: [ cargo-publish ]
+    secrets: inherit
