@@ -21,3 +21,7 @@ jobs:
     uses: 42ByteLabs/.github/.github/workflows/container.yml@main
     needs: [ cargo-publish ]
     secrets: inherit
+    permissions:
+      id-token: write
+      contents: write
+      packages: write
