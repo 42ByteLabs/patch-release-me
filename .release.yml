@@ -6,6 +6,7 @@ locations:
   - name: "Actions Docs"
     paths:
       - 'README.md'
+      - '.github/workflows/*.yml'
       - 'actions/Dockerfile'
     patterns:
       # Actions
