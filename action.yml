@@ -19,6 +19,5 @@ runs:
   using: "docker"
   image: "actions/Dockerfile"
   args:
-    - patch-release-me
     - bump
     - -m "${{ inputs.mode }}"
