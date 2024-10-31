@@ -62,6 +62,9 @@ locations:
     default: true
     paths:
       - "**/package.json"
+    excludes:
+      - /node_modules/
+      - /dist/
     ecosystems: 
       - JavaScript
       - NodeJS
