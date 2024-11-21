@@ -62,8 +62,17 @@ cargo install --git https://github.com/42ByteLabs/patch-release-me
 ## Configuration
 
 ```yaml
-# [optional]: name of the software you are releasing
+# Project / Repository Version
+version: 1.2.3
+
+#[optional]: name of the software you are releasing
 name: "patch-release-me"
+#[optional]: repository owner/name
+repository: "42ByteLabs/patch-release-me"
+#[optional]: Ecosystem to use
+ecosystems:
+  # Only `Rust` tagged defaults will be used
+  - "Rust"
 #[optional]: Are the default release locations added
 default: true
 
@@ -83,6 +92,9 @@ locations:
       # Regex Patterns to find what version you want to patch which requires
       # a capture group `(...)`. The patterns are checks are runtime.
       - 'version = "([0-9]\.[0-9]\.[0.9])"'
+      # You can also use placeholders
+      # {version}, {major}, {minor}, {patch}, {repository}
+      - 'version = "{version}"'
 ```
 
 ## 🦸 Support
