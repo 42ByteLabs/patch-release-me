@@ -18,7 +18,19 @@ locations:
     ecosystems:
       - All
     patterns:
-      - version:\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?
+      - version:\s*[\"|\']?{version}[\"|\']?
+
+  - name: "Documentation"
+    default: true
+    paths:
+      - README.md
+      - "**/*.md"
+      - "**/*.rst"
+    patterns:
+      # Containers
+      - '[ghcr\.io|public.ecr.aws][/]?{repository}:v?{version}'
+      # GitHub Actions
+      - uses:\s+${repository}@v?{version}
 
   # Rust
   - name: "Rust Cargo"
@@ -32,7 +44,7 @@ locations:
       - /target/
       - /examples/
     patterns:
-      - \nversion\s*=\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?
+      - \nversion\s*=\s*[\"|\']?{version}[\"|\']?
 
   # Python
   - name: "Python Pyproject"
@@ -42,7 +54,7 @@ locations:
     ecosystems:
       - Python
     patterns:
-      - version\s*=\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?
+      - version\s*=\s*[\"|\']?{version}[\"|\']?
 
   - name: "Python Init / Version"
     default: true
@@ -55,7 +67,7 @@ locations:
       - "/__pycache__/"
       - "/vendor/"
     patterns:
-      - __version__\s*=\s*["|']([0-9]+\.[0-9]+\.[0-9])["|']
+      - __version__\s*=\s*["|']{version}["|']
   
   # JavaScript / TypeScript
   - name: "Node Package"
@@ -67,6 +79,7 @@ locations:
       - /dist/
     ecosystems: 
       - JavaScript
+      - TypeScript
       - NodeJS
     patterns:
-      - \"version\":\s*\"?\'?([0-9]+\.[0-9]+\.[0-9])\"?\'?"
+      - \"version\":\s+["|']?{version}["|']?

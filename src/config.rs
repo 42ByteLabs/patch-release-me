@@ -34,6 +34,11 @@ pub struct Config {
     /// If Default locations should be used or not
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<bool>,
+
+    /// Ecosystem(s) used in the project
+    #[serde(default = "Vec::new", skip_serializing_if = "Vec::is_empty")]
+    pub ecosystems: Vec<String>,
+
     /// Update versions in these locations
     #[serde(default = "Vec::new", skip_serializing_if = "Vec::is_empty")]
     pub locations: Vec<LocationPattern>,
@@ -46,6 +51,7 @@ impl Default for Config {
             repository: None,
             version: None,
             default: Some(true),
+            ecosystems: Vec::new(),
             locations: Vec::new(),
         }
     }
@@ -125,12 +131,75 @@ impl Config {
                 "Using default locations ({} locations)",
                 config.locations.len()
             );
-            config.locations.extend(defaults.locations);
+
+            if config.ecosystems.is_empty() {
+                debug!("No ecosystems specified, using all locations");
+                config.locations.extend(defaults.locations);
+            } else {
+                debug!("Filtering locations by ecosystems");
+                config.ecosystems.iter().for_each(|eco| {
+                    defaults.locations.iter().for_each(|loc| {
+                        if loc.ecosystems.contains(eco) {
+                            config.locations.push(loc.clone());
+                        }
+                    });
+                });
+            }
         }
+
+        // Update any placeholders in the configuration
+        config.update_placeholders();
 
         info!("Configuration loaded successfully");
 
         Ok(config)
+    }
+
+    // Update placeholders with semantic version regexes
+    #[allow(unused_assignments)]
+    fn update_placeholders(&mut self) {
+        // TODO: Add pre-release and build metadata
+        let semver = "([0-9]+\\.[0-9]+\\.[0-9]+)";
+        let mut placeholders = vec![
+            ("{major}", "([0-9]+)"),
+            ("{minor}", "([0-9]+\\.[0-9]+)"),
+            ("{patch}", semver),
+            ("{version}", semver),
+            ("{semver}", semver),
+        ];
+
+        // TODO: we should probably do something else here
+        let mut owner_case = "".to_string();
+        let mut name_case = "".to_string();
+        let mut repo_case = "".to_string();
+
+        if let Some(repo) = &self.repository {
+            // repo could be `owner/name` or `name`
+            // repo isn't case sensitive so we
+            repo_case = format!("(?i){}(?-i)", repo);
+
+            if let Some((owner, name)) = repo.split_once('/') {
+                debug!("Full repository name: {}/{}", owner, name);
+                owner_case = format!("(?i){}(?-i)", owner);
+                name_case = format!("(?i){}(?-i)", name);
+
+                placeholders.push(("{owner}", &owner_case));
+                placeholders.push(("{name}", &name_case));
+            } else {
+                debug!("Repository name: {}", repo);
+                placeholders.push(("{name}", &repo_case));
+            };
+            placeholders.push(("{repository}", &repo_case));
+            placeholders.push(("{repo}", &repo_case));
+        }
+
+        self.locations.iter_mut().for_each(|loc| {
+            loc.patterns.iter_mut().for_each(|pattern| {
+                placeholders.iter().for_each(|(ph, repl)| {
+                    *pattern = pattern.replace(ph, repl);
+                });
+            });
+        });
     }
 
     /// Write the configuration to a file path
@@ -166,5 +235,67 @@ impl Display for LocationPattern {
         } else {
             write!(f, "{}", self.name)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_placeholder() {
+        let mut config = Config {
+            version: Some("1.2.3".to_string()),
+            locations: vec![LocationPattern {
+                name: "Cargo.toml".to_string(),
+                paths: vec![PathBuf::from("Cargo.toml")],
+                patterns: vec![
+                    "version = \"{version}\"".to_string(),
+                    "semver = \"{semver}\"".to_string(),
+                    "major = \"{major}\"".to_string(),
+                    "minor = \"{minor}\"".to_string(),
+                    "patch = \"{patch}\"".to_string(),
+                ],
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+        config.update_placeholders();
+
+        let loc = &config.locations[0];
+        assert_eq!(loc.patterns[0], "version = \"([0-9]+\\.[0-9]+\\.[0-9]+)\"");
+        assert_eq!(loc.patterns[1], "semver = \"([0-9]+\\.[0-9]+\\.[0-9]+)\"");
+        assert_eq!(loc.patterns[2], "major = \"([0-9]+)\"");
+        assert_eq!(loc.patterns[3], "minor = \"([0-9]+\\.[0-9]+)\"");
+        assert_eq!(loc.patterns[4], "patch = \"([0-9]+\\.[0-9]+\\.[0-9]+)\"");
+    }
+
+    #[test]
+    fn test_placeholder_repo() {
+        let mut config = Config {
+            version: Some("1.2.3".to_string()),
+            repository: Some("42ByteLabs/patch-release-me".to_string()),
+            locations: vec![LocationPattern {
+                name: "Cargo.toml".to_string(),
+                paths: vec![PathBuf::from("Cargo.toml")],
+                patterns: vec![
+                    "repository = \"{repository}\"".to_string(),
+                    "owner = \"{owner}\"".to_string(),
+                    "name = \"{name}\"".to_string(),
+                ],
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+        config.update_placeholders();
+
+        let loc = &config.locations[0];
+        // All repo related placeholders should be replaced with the repo + case sensitive regex
+        assert_eq!(
+            loc.patterns[0],
+            "repository = \"(?i)42ByteLabs/patch-release-me(?-i)\""
+        );
+        assert_eq!(loc.patterns[1], "owner = \"(?i)42ByteLabs(?-i)\"");
+        assert_eq!(loc.patterns[2], "name = \"(?i)patch-release-me(?-i)\"");
     }
 }
