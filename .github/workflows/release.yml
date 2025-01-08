@@ -9,19 +9,32 @@ permissions:
   contents: write
 
 jobs:
+  project:
+    # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/project.yml
+    uses: 42ByteLabs/.github/.github/workflows/project.yml@main
+    secrets: inherit
+
   cargo-publish:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/cargo-publish.yml
     uses: 42ByteLabs/.github/.github/workflows/cargo-publish.yml@v0.10
+    if: ${{ needs.project.outputs.release == 'true' }}
+    needs: [ project ]
     secrets: inherit
     with:
       crate: patch-release-me
 
   container-publish:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/container.yml
-    uses: 42ByteLabs/.github/.github/workflows/container.yml@main
-    needs: [ cargo-publish ]
+    uses: 42ByteLabs/.github/.github/workflows/container.yml@v0.10
+    if: ${{ needs.project.outputs.release == 'true' }}
+    needs: [ project ]
     secrets: inherit
     permissions:
       id-token: write
       contents: write
       packages: write
+      security-events: write
+    with:
+      version: ${{ needs.project.outputs.version }}
+      container-name: "42bytelabs/patch-release-me"
+
