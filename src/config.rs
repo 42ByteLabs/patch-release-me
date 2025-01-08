@@ -35,9 +35,16 @@ pub struct Config {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<bool>,
 
+    /// Ecosystem to use for the project
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ecosystem: Option<String>,
     /// Ecosystem(s) used in the project
     #[serde(default = "Vec::new", skip_serializing_if = "Vec::is_empty")]
     pub ecosystems: Vec<String>,
+
+    /// Global excludes patterns
+    #[serde(default = "Vec::new", skip_serializing_if = "Vec::is_empty")]
+    pub excludes: Vec<String>,
 
     /// Update versions in these locations
     #[serde(default = "Vec::new", skip_serializing_if = "Vec::is_empty")]
@@ -51,7 +58,9 @@ impl Default for Config {
             repository: None,
             version: None,
             default: Some(true),
+            ecosystem: None,
             ecosystems: Vec::new(),
+            excludes: Vec::new(),
             locations: Vec::new(),
         }
     }
@@ -124,6 +133,11 @@ impl Config {
             .map_err(|e| anyhow::anyhow!("Failed to read configuration file: {:?}", e))?;
         let mut config: Self = serde_yaml::from_str(&config_data)?;
 
+        if let Some(eco) = &config.ecosystem {
+            debug!("Using ecosystem: {}", eco);
+            config.ecosystems.push(eco.clone());
+        }
+
         // Defaults
         if config.use_default() {
             let defaults = Defaults::load()?;
@@ -144,6 +158,14 @@ impl Config {
                         }
                     });
                 });
+            }
+        }
+
+        // Update excludes paths
+        if !config.excludes.is_empty() {
+            debug!("Adding global excludes to default locations");
+            for loc in config.locations.iter_mut() {
+                loc.excludes.extend(config.excludes.clone());
             }
         }
 
