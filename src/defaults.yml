@@ -83,3 +83,15 @@ locations:
       - NodeJS
     patterns:
       - \"version\":\s+["|']?{version}["|']?
+
+  # CodeQL
+  - name: "CodeQL Packs"
+    paths:
+      - "**/qlpack.yml"
+    excludes:
+      - /.codeql/
+    ecosystems:
+      - CodeQL
+      - QL
+    patterns:
+      - version:\s+["|']?{version}["|']?
