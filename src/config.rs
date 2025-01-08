@@ -153,7 +153,9 @@ impl Config {
                 debug!("Filtering locations by ecosystems");
                 config.ecosystems.iter().for_each(|eco| {
                     defaults.locations.iter().for_each(|loc| {
-                        if loc.ecosystems.contains(eco) {
+                        if loc.ecosystems.contains(eco)
+                            || loc.ecosystems.contains(&"All".to_string())
+                        {
                             config.locations.push(loc.clone());
                         }
                     });
