@@ -1,4 +1,4 @@
-FROM docker.io/library/rust:1.80-alpine as builder
+FROM docker.io/library/rust:1.85-alpine as builder
 
 WORKDIR /app
 
