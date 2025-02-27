@@ -14,10 +14,12 @@ jobs:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/cargo.yml
     uses: 42ByteLabs/.github/.github/workflows/cargo.yml@main
     secrets: inherit
+    permissions:
+      contents: read
+      security-events: write
   
   container-testing:
     runs-on: ubuntu-latest
-    needs: build-test
     steps:
       - name: "Checkout"
         uses: actions/checkout@v4

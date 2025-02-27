@@ -236,7 +236,7 @@ pub(crate) fn update_version(version: &mut semver::Version, bump_mode: &BumpMode
             version.minor = 0;
             version.patch = 0;
         }
-        BumpMode::Version(ref version_str) => {
+        BumpMode::Version(version_str) => {
             let new_version = semver::Version::parse(version_str).expect("Invalid version");
             *version = new_version;
         }

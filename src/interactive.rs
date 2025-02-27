@@ -1,5 +1,5 @@
-use crate::{config::BumpMode, defaults::Defaults, WorkflowMode};
-use anyhow::{anyhow, Result};
+use crate::{WorkflowMode, config::BumpMode, defaults::Defaults};
+use anyhow::{Result, anyhow};
 use dialoguer::Select;
 use log::debug;
 

@@ -8,6 +8,8 @@ ecosystems:
     - NPM
     - NodeJS
     - Yarn
+  Containers:
+    - Docker
 
 locations:
   - name: "Release File"
@@ -28,7 +30,7 @@ locations:
       - "**/*.rst"
     patterns:
       # Containers
-      - '[ghcr\.io|public.ecr.aws][/]?{repository}:v?{version}'
+      - '(?:ghcr\.io|docker\.io)?[/]?{repository}:v?{version}'
       # GitHub Actions
       - uses:\s+${repository}@v?{version}
 
@@ -83,6 +85,19 @@ locations:
       - NodeJS
     patterns:
       - \"version\":\s+["|']?{version}["|']?
+
+  # Docker
+  - name: "Docker File"
+    default: true
+    paths:
+      - "**/Dockerfile"
+      - "**/Containerfile"
+      - "**/docker-compose.yml"
+    ecosystems:
+      - Docker
+      - Containers
+    patterns:
+      - '(?:ghcr\.io|docker\.io)?[/]?{repository}:v?{version}'
 
   # CodeQL
   - name: "CodeQL Packs"
