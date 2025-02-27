@@ -1,6 +1,6 @@
 [package]
 name = "patch-release-me"
-version = "0.5.0"
+version = "0.5.1"
 license = "MIT"
 description = "A tool to automate patching of your projects before you release them"
 
