@@ -30,7 +30,7 @@ locations:
       - "**/*.rst"
     patterns:
       # Containers
-      - '[ghcr\.io|public.ecr.aws][/]?{repository}:v?{version}'
+      - '(?:ghcr\.io|docker\.io)?[/]?{repository}:v?{version}'
       # GitHub Actions
       - uses:\s+${repository}@v?{version}
 
@@ -97,7 +97,7 @@ locations:
       - Docker
       - Containers
     patterns:
-      - '[ghcr\.io|docker.io]?[/]?{repository}:v?{version}'
+      - '(?:ghcr\.io|docker\.io)?[/]?{repository}:v?{version}'
 
   # CodeQL
   - name: "CodeQL Packs"
