@@ -1,5 +1,6 @@
 //! # Patch Release Me Tool
 #![deny(missing_docs)]
+#![deny(unsafe_code)]
 
 use anyhow::Result;
 use defaults::Defaults;

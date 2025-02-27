@@ -156,7 +156,12 @@ impl Config {
                         if loc.ecosystems.contains(eco)
                             || loc.ecosystems.contains(&"All".to_string())
                         {
-                            config.locations.push(loc.clone());
+                            if config.locations.iter().any(|l| l.name == loc.name) {
+                                debug!("Location already exists, skipping: {}", loc.name);
+                            } else {
+                                debug!("Adding location: {}", loc.name);
+                                config.locations.push(loc.clone());
+                            }
                         }
                     });
                 });
