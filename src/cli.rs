@@ -85,6 +85,7 @@ pub fn init() -> Arguments {
     env_logger::builder()
         .parse_default_env()
         .filter_level(log_level)
+        .format_module_path(false)
         .init();
 
     if !arguments.disable_banner {

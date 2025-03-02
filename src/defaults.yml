@@ -1,5 +1,8 @@
 
 ecosystems:
+  Docs:
+    - Docs
+    - Documentation
   Rust:
     - Cargo
   Python:
@@ -24,6 +27,8 @@ locations:
 
   - name: "Documentation"
     default: true
+    ecosystems:
+      - Docs
     paths:
       - README.md
       - "**/*.md"
@@ -31,8 +36,8 @@ locations:
     patterns:
       # Containers
       - '(?:ghcr\.io|docker\.io)?[/]?{repository}:v?{version}'
-      # GitHub Actions
-      - uses:\s+${repository}@v?{version}
+      # GitHub Actions and subpath 
+      - uses:\s+{repository}(?:/[A-Za-z0-9_-]+)?@v?{version}
 
   # Rust
   - name: "Rust Cargo"
