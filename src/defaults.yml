@@ -3,6 +3,8 @@ ecosystems:
   Docs:
     - Docs
     - Documentation
+  Actions:
+    - Actions
   Rust:
     - Cargo
   Python:
@@ -39,6 +41,18 @@ locations:
       # GitHub Actions and subpath 
       - uses:\s+{repository}(?:/[A-Za-z0-9_-]+)?@v?{version}
 
+  - name: "GitHub Actions"
+    default: true
+    ecosystems:
+      - Actions
+      - GitHub
+    paths:
+      - .github/workflows/*.yml
+      - .github/workflows/*.yaml
+    patterns:
+      # Reusable Actions
+      - uses:\s+{repository}/.github/workflows/.*\.yml@v?{version}
+
   # Rust
   - name: "Rust Cargo"
     default: true
@@ -52,6 +66,8 @@ locations:
       - /examples/
     patterns:
       - \nversion\s*=\s*[\"|\']?{version}[\"|\']?
+      - \n{name}\s*=\s*[\"|\']?{version}[\"|\']?
+      - \n{name}\s*=\s*\{\sversion\s*=\s*[\"|\']?[^]?{version}[\"|\']?\}
 
   # Python
   - name: "Python Pyproject"
