@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 use console::style;
+use std::io::Write;
 use std::path::PathBuf;
 
 pub const VERSION_NUMBER: &str = env!("CARGO_PKG_VERSION");
@@ -85,6 +86,16 @@ pub fn init() -> Arguments {
     env_logger::builder()
         .parse_default_env()
         .filter_level(log_level)
+        .format(|buf, record| {
+            let level = match record.level() {
+                log::Level::Error => style(record.level()).red(),
+                log::Level::Warn => style(record.level()).yellow(),
+                log::Level::Info => style(record.level()).blue(),
+                log::Level::Debug => style(record.level()).cyan(),
+                log::Level::Trace => style(record.level()).white(),
+            };
+            writeln!(buf, "[{:^5}] {}", level, record.args())
+        })
         .format_module_path(false)
         .init();
 

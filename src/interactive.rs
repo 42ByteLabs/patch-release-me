@@ -1,21 +1,30 @@
+use crate::config::Config;
 use crate::{WorkflowMode, config::BumpMode, defaults::Defaults};
 use anyhow::{Result, anyhow};
-use dialoguer::Select;
+use dialoguer::theme::ColorfulTheme;
+use dialoguer::{FuzzySelect, Select};
 use log::debug;
 
-pub fn select_mode() -> Result<WorkflowMode> {
-    let selection = Select::new()
+pub fn select_mode(config: &Config) -> Result<WorkflowMode> {
+    let mut modes = Vec::new();
+    if !config.version.is_some() {
+        modes.push("Init");
+    }
+    modes.push("Display");
+    modes.push("Bump");
+
+    let selection = FuzzySelect::with_theme(&ColorfulTheme::default())
         .with_prompt("Select Mode")
         .default(0)
-        .item("Init")
-        .item("Display")
-        .item("Bump")
+        .items(modes.as_slice())
         .interact()?;
 
-    match selection {
-        0 => Ok(interactive_init()?),
-        1 => Ok(WorkflowMode::Display),
-        2 => {
+    let text = modes.get(selection).ok_or(anyhow!("Invalid selection"))?;
+
+    match *text {
+        "Init" => Ok(interactive_init()?),
+        "Display" => Ok(WorkflowMode::Display),
+        "Bump" => {
             let bump_mode = select_bump_mode()?;
             Ok(WorkflowMode::Bump(bump_mode))
         }

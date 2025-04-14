@@ -3,6 +3,7 @@
 #![deny(unsafe_code)]
 
 use anyhow::Result;
+use console::style;
 use defaults::Defaults;
 use log::debug;
 use log::info;
@@ -94,7 +95,7 @@ async fn main() -> Result<()> {
             WorkflowMode::Bump(bump_mode)
         }
         Some(ArgumentCommands::Display) => WorkflowMode::Display,
-        None => select_mode()?,
+        None => select_mode(&config)?,
     };
 
     let workflow = Workflow::init()
@@ -131,6 +132,11 @@ async fn main() -> Result<()> {
             info!("Configuration saved");
         }
         WorkflowMode::Display => {
+            info!(
+                "Current Version - {}",
+                style(config.version.unwrap_or_default()).green()
+            );
+
             workflow.display()?;
         }
         WorkflowMode::Bump(mode) => {
