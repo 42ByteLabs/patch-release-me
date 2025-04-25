@@ -88,6 +88,9 @@ locations:
       - Python
     excludes:
       - "/__pycache__/"
+      - "/.venv/"
+      - "/public/"
+      - "/dist/"
       - "/vendor/"
     patterns:
       - __version__\s*=\s*["|']{version}["|']
