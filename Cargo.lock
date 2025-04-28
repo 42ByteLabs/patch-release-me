@@ -471,7 +471,7 @@ dependencies = [
 
 [[package]]
 name = "patch-release-me"
-version = "0.5.5"
+version = "0.6.0"
 dependencies = [
  "anyhow",
  "clap",
