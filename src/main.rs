@@ -3,6 +3,7 @@
 #![deny(unsafe_code)]
 
 use anyhow::Result;
+use anyhow::anyhow;
 use console::style;
 use defaults::Defaults;
 use log::debug;
@@ -103,7 +104,7 @@ async fn main() -> Result<()> {
                 update_version(&mut version, &bump_mode);
                 version
             } else {
-                panic!("Version not set in config");
+                return Err(anyhow!("Version not found in config"));
             };
 
             WorkflowMode::Bump {
