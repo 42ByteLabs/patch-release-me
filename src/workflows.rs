@@ -14,7 +14,12 @@ pub enum WorkflowMode {
         language_ecosystems: Vec<String>,
         enable_defaults: Option<bool>,
     },
-    Bump(BumpMode),
+    Bump {
+        /// Bump Mode
+        mode: BumpMode,
+        /// Version to set
+        version: semver::Version,
+    },
     Display,
 }
 
@@ -37,11 +42,10 @@ impl Workflow {
         self.process(|path, captures| {
             for capture in captures {
                 let data = capture.get(1).unwrap();
-                let version = semver::Version::parse(data.as_str())?;
                 let start = data.start();
                 let end = data.end();
 
-                match self.mode {
+                match &self.mode {
                     WorkflowMode::Display => {
                         info!(
                             "{:>8} :: {}#{}",
@@ -50,14 +54,11 @@ impl Workflow {
                             start
                         );
                     }
-                    WorkflowMode::Bump(ref mode) => {
-                        let mut new_version = version.clone();
-                        update_version(&mut new_version, mode);
-
+                    WorkflowMode::Bump { version, .. } => {
                         info!(
                             "{:>8} -> {:<8} :: {}#{}-{}",
                             style(data.as_str()).red(),
-                            style(new_version).green(),
+                            style(version).green(),
                             path.display(),
                             start,
                             end
@@ -78,24 +79,20 @@ impl Workflow {
 
             for capture in captures {
                 let data = capture.get(1).unwrap();
-                let version = semver::Version::parse(data.as_str())?;
                 let start = data.start();
                 let end = data.end();
 
                 let location = format!("{}#{}-{}", path.display(), start, end);
 
-                if let WorkflowMode::Bump(ref mode) = self.mode {
-                    let mut new_version = version.clone();
-                    update_version(&mut new_version, mode);
-
+                if let WorkflowMode::Bump { version, .. } = &self.mode {
                     info!(
                         "{:>8} -> {:<8} :: {}",
                         style(data.as_str()).red(),
-                        style(new_version.clone()).green(),
+                        style(version.clone()).green(),
                         location
                     );
 
-                    content.replace_range(start..end, new_version.to_string().as_str());
+                    content.replace_range(start..end, version.to_string().as_str());
                 };
             }
 
