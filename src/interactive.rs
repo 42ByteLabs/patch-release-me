@@ -1,6 +1,7 @@
 use crate::config::Config;
+use crate::update_version;
 use crate::{WorkflowMode, config::BumpMode, defaults::Defaults};
-use anyhow::{Result, anyhow};
+use anyhow::{Context, Result, anyhow};
 use dialoguer::theme::ColorfulTheme;
 use dialoguer::{FuzzySelect, Select};
 use log::debug;
@@ -26,11 +27,7 @@ pub fn select_mode(config: &Config) -> Result<WorkflowMode> {
         "Init" => Ok(interactive_init()?),
         "Display" => Ok(WorkflowMode::Display),
         "Sync" => {
-            let version = if let Some(version) = &config.version {
-                semver::Version::parse(version.as_str())?
-            } else {
-                prompt_version()?
-            };
+            let version = new_version(config, &BumpMode::Version("0.0.0".to_string()))?;
             Ok(WorkflowMode::Bump {
                 mode: BumpMode::Version(version.to_string()),
                 version,
@@ -38,11 +35,7 @@ pub fn select_mode(config: &Config) -> Result<WorkflowMode> {
         }
         "Bump" => {
             let bump_mode = select_bump_mode()?;
-            let version = if let Some(version) = &config.version {
-                semver::Version::parse(version)?
-            } else {
-                prompt_version()?
-            };
+            let version = new_version(config, &bump_mode)?;
             Ok(WorkflowMode::Bump {
                 mode: bump_mode,
                 version,
@@ -159,8 +152,20 @@ fn prompt_version() -> Result<semver::Version> {
     let version = dialoguer::Input::<String>::new()
         .with_prompt("Enter Version")
         .default("0.1.0".to_string())
-        .interact()?;
+        .interact()
+        .context("Failed to read version")?;
     semver::Version::parse(&version).map_err(|e| anyhow!("Invalid version: {}", e))
+}
+
+/// Prompt for a new version based on the current version and bump mode
+pub fn new_version(config: &Config, bump_mode: &BumpMode) -> Result<semver::Version> {
+    let mut version = if let Some(version) = &config.version {
+        semver::Version::parse(version).context(format!("Failed to parse version: {version}"))?
+    } else {
+        prompt_version()?
+    };
+    update_version(&mut version, bump_mode);
+    Ok(version)
 }
 
 fn find_project_name() -> Result<String> {

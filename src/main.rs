@@ -3,12 +3,9 @@
 #![deny(unsafe_code)]
 
 use anyhow::Result;
-use anyhow::anyhow;
 use console::style;
 use defaults::Defaults;
-use log::debug;
-use log::info;
-use log::warn;
+use log::{debug, info, warn};
 
 mod cli;
 mod config;
@@ -99,13 +96,7 @@ async fn main() -> Result<()> {
             };
             debug!("CLI Mode: {:?}", bump_mode);
 
-            let version = if let Some(version) = &config.version {
-                let mut version = semver::Version::parse(version.as_str())?;
-                update_version(&mut version, &bump_mode);
-                version
-            } else {
-                return Err(anyhow!("Version not found in config"));
-            };
+            let version = new_version(&config, &bump_mode)?;
 
             WorkflowMode::Bump {
                 mode: bump_mode,
