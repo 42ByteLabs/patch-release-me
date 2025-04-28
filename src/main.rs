@@ -57,6 +57,18 @@ async fn main() -> Result<()> {
                 enable_defaults: *defaults,
             }
         }
+        Some(ArgumentCommands::Sync) => {
+            debug!("Sync Mode");
+            let version = if let Some(version) = &config.version {
+                semver::Version::parse(version.as_str())?
+            } else {
+                semver::Version::parse("0.0.0")?
+            };
+            WorkflowMode::Bump {
+                mode: BumpMode::Version(version.to_string()),
+                version,
+            }
+        }
         Some(ArgumentCommands::Bump {
             set_version,
             mode,
@@ -66,15 +78,6 @@ async fn main() -> Result<()> {
         }) => {
             debug!("Bump Mode");
 
-            let cli_mode = if *minor {
-                BumpMode::Minor
-            } else if *major {
-                BumpMode::Major
-            } else {
-                BumpMode::Patch
-            };
-            debug!("CLI Mode: {:?}", cli_mode);
-
             let bump_mode = if !set_version.is_empty() {
                 debug!("Manually setting version: {}", set_version);
                 BumpMode::Version(set_version.clone())
@@ -83,16 +86,30 @@ async fn main() -> Result<()> {
                 BumpMode::from(mode)
             } else if let Some(ref version) = config.version {
                 debug!("Setting mode: Version (from config)");
-                // Update version from config file
-                let mut new_version = semver::Version::parse(version)?;
-                update_version(&mut new_version, &cli_mode);
-
-                BumpMode::Version(new_version.to_string())
+                BumpMode::Version(version.clone())
             } else {
-                cli_mode
+                if *minor {
+                    BumpMode::Minor
+                } else if *major {
+                    BumpMode::Major
+                } else {
+                    BumpMode::Patch
+                }
+            };
+            debug!("CLI Mode: {:?}", bump_mode);
+
+            let version = if let Some(version) = &config.version {
+                let mut version = semver::Version::parse(version.as_str())?;
+                update_version(&mut version, &bump_mode);
+                version
+            } else {
+                panic!("Version not set in config");
             };
 
-            WorkflowMode::Bump(bump_mode)
+            WorkflowMode::Bump {
+                mode: bump_mode,
+                version,
+            }
         }
         Some(ArgumentCommands::Display) => WorkflowMode::Display,
         None => select_mode(&config)?,
@@ -139,7 +156,7 @@ async fn main() -> Result<()> {
 
             workflow.display()?;
         }
-        WorkflowMode::Bump(mode) => {
+        WorkflowMode::Bump { mode, .. } => {
             info!("Bumping version - {:?}", mode);
             workflow.patch().await?;
         }

@@ -53,6 +53,7 @@ pub enum ArgumentCommands {
         defaults: Option<bool>,
     },
     Display,
+    Sync,
     Bump {
         /// Set Version
         #[clap(short, long, env, default_value = "")]

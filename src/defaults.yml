@@ -115,7 +115,9 @@ locations:
     default: true
     paths:
       - "**/Dockerfile"
+      - "**/*.Dockerfile"
       - "**/Containerfile"
+      - "**/*.Containerfile"
       - "**/docker-compose.yml"
     ecosystems:
       - Docker

@@ -12,6 +12,7 @@ pub fn select_mode(config: &Config) -> Result<WorkflowMode> {
     }
     modes.push("Display");
     modes.push("Bump");
+    modes.push("Sync");
 
     let selection = FuzzySelect::with_theme(&ColorfulTheme::default())
         .with_prompt("Select Mode")
@@ -24,9 +25,28 @@ pub fn select_mode(config: &Config) -> Result<WorkflowMode> {
     match *text {
         "Init" => Ok(interactive_init()?),
         "Display" => Ok(WorkflowMode::Display),
+        "Sync" => {
+            let version = if let Some(version) = &config.version {
+                semver::Version::parse(version.as_str())?
+            } else {
+                prompt_version()?
+            };
+            Ok(WorkflowMode::Bump {
+                mode: BumpMode::Version(version.to_string()),
+                version,
+            })
+        }
         "Bump" => {
             let bump_mode = select_bump_mode()?;
-            Ok(WorkflowMode::Bump(bump_mode))
+            let version = if let Some(version) = &config.version {
+                semver::Version::parse(version)?
+            } else {
+                prompt_version()?
+            };
+            Ok(WorkflowMode::Bump {
+                mode: bump_mode,
+                version,
+            })
         }
         _ => Err(anyhow!("Invalid selection")),
     }
@@ -133,6 +153,14 @@ pub fn select_bump_mode() -> Result<BumpMode> {
         }
         _ => Err(anyhow!("Invalid selection")),
     }
+}
+
+fn prompt_version() -> Result<semver::Version> {
+    let version = dialoguer::Input::<String>::new()
+        .with_prompt("Enter Version")
+        .default("0.1.0".to_string())
+        .interact()?;
+    semver::Version::parse(&version).map_err(|e| anyhow!("Invalid version: {}", e))
 }
 
 fn find_project_name() -> Result<String> {
