@@ -16,7 +16,7 @@ jobs:
 
   cargo-publish:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/cargo-publish.yml
-    uses: 42ByteLabs/.github/.github/workflows/cargo-publish.yml@v0.11
+    uses: 42ByteLabs/.github/.github/workflows/cargo-publish.yml@v0.12
     if: ${{ needs.project.outputs.release == 'true' }}
     needs: [ project ]
     secrets: inherit
@@ -25,7 +25,7 @@ jobs:
 
   container-publish:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/container.yml
-    uses: 42ByteLabs/.github/.github/workflows/container.yml@v0.11
+    uses: 42ByteLabs/.github/.github/workflows/container.yml@v0.12
     if: ${{ needs.project.outputs.release == 'true' }}
     needs: [ project ]
     secrets: inherit
