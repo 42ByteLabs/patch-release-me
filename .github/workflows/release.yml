@@ -47,6 +47,7 @@ jobs:
       id-token: write
       contents: write
       packages: write
+      attestations: write
       security-events: write
     with:
       version: ${{ needs.project.outputs.version }}
