@@ -23,6 +23,20 @@ jobs:
     with:
       crate: patch-release-me
 
+  cargo-binaries:
+    # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/cargo-binaries.yml
+    uses: 42ByteLabs/.github/.github/workflows/cargo-binaries.yml@v0.12
+    if: ${{ needs.project.outputs.release == 'true' }}
+    needs: [ cargo-publish ]
+    secrets: inherit
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    with:
+      version: ${{ needs.project.outputs.version }}
+      crate: patch-release-me
+
   container-publish:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/container.yml
     uses: 42ByteLabs/.github/.github/workflows/container.yml@v0.12
