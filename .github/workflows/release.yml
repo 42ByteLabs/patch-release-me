@@ -27,7 +27,7 @@ jobs:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/cargo-binaries.yml
     uses: 42ByteLabs/.github/.github/workflows/cargo-binaries.yml@main
     if: ${{ needs.project.outputs.release == 'true' }}
-    needs: [ cargo-publish ]
+    needs: [ project, cargo-publish ]
     secrets: inherit
     permissions:
       contents: write
