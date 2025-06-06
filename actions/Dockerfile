@@ -1,3 +1,3 @@
-FROM ghcr.io/42bytelabs/patch-release-me:0.6.0
+FROM ghcr.io/42bytelabs/patch-release-me:0.6.1
 
 ENTRYPOINT ["patch-release-me"]
