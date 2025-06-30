@@ -19,7 +19,7 @@ default = []
 [dependencies]
 # CLI parser
 clap = { version = "4.5", features = ["derive", "env"] }
-console = "0.15"
+console = "0.16"
 dialoguer = { version = "0.11", features = ["fuzzy-select"] }
 indicatif = "0.17"
 thiserror = "2"
