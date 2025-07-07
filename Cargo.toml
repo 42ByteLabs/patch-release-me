@@ -21,7 +21,7 @@ default = []
 clap = { version = "4.5", features = ["derive", "env"] }
 console = "0.16"
 dialoguer = { version = "0.11", features = ["fuzzy-select"] }
-indicatif = "0.17"
+indicatif = "0.18"
 thiserror = "2"
 anyhow = "1"
 # logging
