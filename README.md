@@ -33,7 +33,7 @@ cargo install patch-release-me
 
 ```yaml
 - name: "Patch Release Me"
-  uses: 42ByteLabs/patch-release-me@0.6.2
+  uses: 42ByteLabs/patch-release-me@0.6.3
   with:
     # Bump (patch)
     mode: bump
@@ -44,13 +44,13 @@ cargo install patch-release-me
 **Pull Container from GitHub:**
 
 ```bash
-docker pull ghcr.io/42bytelabs/patch-release-me:0.6.2
+docker pull ghcr.io/42bytelabs/patch-release-me:0.6.3
 ```
 
 **Run Image:***
 
 ```bash
-docker run -it --rm -v $PWD:/app ghcr.io/42bytelabs/patch-release-me:0.6.2 patch-release-me --help
+docker run -it --rm -v $PWD:/app ghcr.io/42bytelabs/patch-release-me:0.6.3 patch-release-me --help
 ```
 
 ### Manual Install 
