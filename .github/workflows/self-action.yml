@@ -12,7 +12,7 @@ jobs:
   action-testing:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: "Run Action"
         uses: 42ByteLabs/patch-release-me@0.6.3
