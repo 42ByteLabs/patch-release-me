@@ -15,8 +15,8 @@ pub const BANNER: &str = r#"______     _       _    ______     _                
 
 #[derive(Parser, Debug)]
 #[command(
-    author, 
-    version, 
+    author,
+    version,
     about = "A tool to automate version bumping across multiple file types in your project",
     long_about = "Patch Release Me automatically updates version numbers in your project files.\n\
                   Run without a subcommand to enter interactive mode."
@@ -57,27 +57,44 @@ pub enum ArgumentCommands {
         version: Option<String>,
 
         /// Programming languages/ecosystems to include (e.g., Rust, Python, Docker)
-        #[clap(short, long, env, help = "Specify ecosystems: Rust, Python, Node, Docker, etc.")]
+        #[clap(
+            short,
+            long,
+            env,
+            help = "Specify ecosystems: Rust, Python, Node, Docker, etc."
+        )]
         language_ecosystems: Vec<String>,
 
         /// Include default patterns for common files
-        #[clap(short, long, env, default_value = "false", help = "Enable default file patterns")]
+        #[clap(
+            short,
+            long,
+            env,
+            default_value = "false",
+            help = "Enable default file patterns"
+        )]
         defaults: Option<bool>,
     },
-    
+
     /// Show what files and versions would be updated (dry-run)
     #[command(about = "Preview changes without modifying files")]
     Display,
-    
+
     /// Sync all files to the current version in .release.yml
     #[command(about = "Apply current version to all tracked files")]
     Sync,
-    
+
     /// Bump version and update all tracked files
     #[command(about = "Increment version and update files")]
     Bump {
         /// Manually set a specific version (e.g., 1.2.3)
-        #[clap(short, long, env, default_value = "", help = "Specify exact version to set")]
+        #[clap(
+            short,
+            long,
+            env,
+            default_value = "",
+            help = "Specify exact version to set"
+        )]
         set_version: String,
 
         /// Bump mode: major, minor, or patch

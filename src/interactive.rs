@@ -8,10 +8,10 @@ use log::debug;
 
 pub fn select_mode(config: &Config) -> Result<WorkflowMode> {
     println!("\n🚀 Welcome to Patch Release Me - Interactive Mode\n");
-    
+
     let mut modes = Vec::new();
     let mut descriptions = Vec::new();
-    
+
     if !config.version.is_some() {
         modes.push("Init");
         descriptions.push("Initialize new .release.yml configuration");
@@ -24,7 +24,8 @@ pub fn select_mode(config: &Config) -> Result<WorkflowMode> {
     descriptions.push("Apply current version to all files");
 
     // Format items with descriptions
-    let items: Vec<String> = modes.iter()
+    let items: Vec<String> = modes
+        .iter()
         .zip(descriptions.iter())
         .map(|(mode, desc)| format!("{:<10} - {}", mode, desc))
         .collect();
@@ -62,7 +63,7 @@ pub fn select_mode(config: &Config) -> Result<WorkflowMode> {
 pub fn interactive_init() -> Result<WorkflowMode> {
     println!("\n📝 Configuration Setup\n");
     println!("Let's create your .release.yml configuration file.\n");
-    
+
     let name = dialoguer::Input::<String>::new()
         .with_prompt("Project name")
         .with_initial_text(find_project_name()?)
@@ -91,8 +92,10 @@ pub fn interactive_init() -> Result<WorkflowMode> {
         .interact()?;
 
     let language_ecosystems = if defaults {
-        println!("\n🔧 Select your project's ecosystems (use Space to select, Enter to confirm):\n");
-        
+        println!(
+            "\n🔧 Select your project's ecosystems (use Space to select, Enter to confirm):\n"
+        );
+
         let defaults = Defaults::load()?;
         let mut lang_list = defaults.get_languages();
         lang_list.sort();
@@ -113,13 +116,13 @@ pub fn interactive_init() -> Result<WorkflowMode> {
                 }
             })
             .collect();
-        
+
         if selected.is_empty() {
             println!("⚠️  No ecosystems selected. You can manually configure patterns later.");
         } else {
             println!("✓ Selected: {}", selected.join(", "));
         }
-        
+
         selected
     } else {
         vec![]
@@ -153,7 +156,7 @@ pub fn interactive_init() -> Result<WorkflowMode> {
             None
         }
     };
-    
+
     println!("\n✅ Configuration complete! Creating .release.yml...\n");
 
     Ok(WorkflowMode::Init {
@@ -167,14 +170,14 @@ pub fn interactive_init() -> Result<WorkflowMode> {
 
 pub fn select_bump_mode() -> Result<BumpMode> {
     println!("\n📦 Version Bump Strategy\n");
-    
+
     let items = vec![
         "Patch (x.x.N+1) - Bug fixes, small changes",
         "Minor (x.N+1.0) - New features, backward compatible",
         "Major (N+1.0.0) - Breaking changes",
         "Custom - Manually set version",
     ];
-    
+
     let selection = Select::new()
         .with_prompt("How would you like to bump the version?")
         .default(0)
@@ -185,15 +188,15 @@ pub fn select_bump_mode() -> Result<BumpMode> {
         0 => {
             println!("✓ Patch version will be incremented");
             Ok(BumpMode::Patch)
-        },
+        }
         1 => {
             println!("✓ Minor version will be incremented");
             Ok(BumpMode::Minor)
-        },
+        }
         2 => {
             println!("✓ Major version will be incremented");
             Ok(BumpMode::Major)
-        },
+        }
         3 => {
             let version = dialoguer::Input::<String>::new()
                 .with_prompt("Enter custom version (semver format)")

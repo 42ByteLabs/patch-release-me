@@ -42,17 +42,17 @@ impl Workflow {
         use std::sync::{Arc, Mutex};
         let file_count = Arc::new(Mutex::new(0));
         let match_count = Arc::new(Mutex::new(0));
-        
+
         let fc = file_count.clone();
         let mc = match_count.clone();
-        
+
         self.process(move |path, captures| {
             if !captures.is_empty() {
                 *fc.lock().unwrap() += 1;
-                
+
                 // Print file header
                 println!("  {} {}", style("📄").dim(), style(path.display()).cyan());
-                
+
                 for capture in captures {
                     *mc.lock().unwrap() += 1;
                     let data = capture.get(1).unwrap();
@@ -83,15 +83,17 @@ impl Workflow {
             }
             Ok(())
         })?;
-        
+
         let files = *file_count.lock().unwrap();
         let matches = *match_count.lock().unwrap();
-        
+
         println!("{}", style("─".repeat(60)).dim());
-        println!("  {} files with {} version references", 
-                 style(files).cyan().bold(), 
-                 style(matches).cyan().bold());
-        
+        println!(
+            "  {} files with {} version references",
+            style(files).cyan().bold(),
+            style(matches).cyan().bold()
+        );
+
         Ok(())
     }
 
@@ -100,10 +102,10 @@ impl Workflow {
         use std::sync::{Arc, Mutex};
         let file_count = Arc::new(Mutex::new(0));
         let update_count = Arc::new(Mutex::new(0));
-        
+
         let fc = file_count.clone();
         let uc = update_count.clone();
-        
+
         self.process(move |path, captures| {
             let mut content = std::fs::read_to_string(&path)?;
             let mut file_updated = false;
@@ -119,7 +121,7 @@ impl Workflow {
                         file_updated = true;
                         *fc.lock().unwrap() += 1;
                     }
-                    
+
                     println!(
                         "     {} {} {} {}",
                         style("✓").green(),
@@ -141,15 +143,17 @@ impl Workflow {
 
             Ok(())
         })?;
-        
+
         let files = *file_count.lock().unwrap();
         let updates = *update_count.lock().unwrap();
-        
+
         println!("{}", style("─".repeat(60)).dim());
-        println!("  {} files updated with {} changes", 
-                 style(files).cyan().bold(), 
-                 style(updates).cyan().bold());
-        
+        println!(
+            "  {} files updated with {} changes",
+            style(files).cyan().bold(),
+            style(updates).cyan().bold()
+        );
+
         Ok(())
     }
 

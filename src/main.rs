@@ -25,15 +25,19 @@ fn detect_current_version(root: &std::path::Path) -> Result<semver::Version> {
     if cargo_toml.exists() {
         let content = std::fs::read_to_string(&cargo_toml)?;
         // Match version only in [package] section, before any other section
-        let version_regex = regex::Regex::new(r#"(?m)^\[package\][^\[]*?^version\s*=\s*"([^"]+)""#)?;
+        let version_regex =
+            regex::Regex::new(r#"(?m)^\[package\][^\[]*?^version\s*=\s*"([^"]+)""#)?;
         if let Some(cap) = version_regex.captures(&content) {
             if let Some(version_str) = cap.get(1) {
-                return semver::Version::parse(version_str.as_str())
-                    .map_err(|e| anyhow::anyhow!("Failed to parse version from Cargo.toml: {}", e));
+                return semver::Version::parse(version_str.as_str()).map_err(|e| {
+                    anyhow::anyhow!("Failed to parse version from Cargo.toml: {}", e)
+                });
             }
         }
     }
-    anyhow::bail!("Could not detect version from Cargo.toml. Please ensure it exists and has a valid version field.")
+    anyhow::bail!(
+        "Could not detect version from Cargo.toml. Please ensure it exists and has a valid version field."
+    )
 }
 
 #[tokio::main]
@@ -153,26 +157,41 @@ async fn main() -> Result<()> {
             config.write(&arguments.root.join(&arguments.config))?;
 
             println!("\n{}", style("━".repeat(60)).dim());
-            println!("{} Configuration saved successfully!", style("✓").green().bold());
-            println!("{} File: {}", style("→").dim(), style(&arguments.config.display()).cyan());
+            println!(
+                "{} Configuration saved successfully!",
+                style("✓").green().bold()
+            );
+            println!(
+                "{} File: {}",
+                style("→").dim(),
+                style(&arguments.config.display()).cyan()
+            );
             println!("{}", style("━".repeat(60)).dim());
             println!("\nNext steps:");
-            println!("  {} Run 'patch-release-me display' to preview changes", style("1.").bold());
-            println!("  {} Run 'patch-release-me bump' to update versions", style("2.").bold());
+            println!(
+                "  {} Run 'patch-release-me display' to preview changes",
+                style("1.").bold()
+            );
+            println!(
+                "  {} Run 'patch-release-me bump' to update versions",
+                style("2.").bold()
+            );
             println!();
         }
         WorkflowMode::Display => {
             println!();
-            let version_text = config.version.as_ref()
+            let version_text = config
+                .version
+                .as_ref()
                 .map(|v| format!("{}", style(v).green().bold()))
                 .unwrap_or_else(|| style("Not set").yellow().to_string());
-            
+
             println!("{} Current version: {}", style("ℹ").blue(), version_text);
             println!("{}", style("─".repeat(60)).dim());
             println!();
 
             workflow.display()?;
-            
+
             println!();
             println!("{}", style("Note:").bold());
             println!("  This is a dry-run. No files were modified.");
@@ -182,12 +201,15 @@ async fn main() -> Result<()> {
         WorkflowMode::Bump { mode, .. } => {
             println!("\n{} Bumping version: {:?}", style("→").cyan(), mode);
             println!("{}", style("─".repeat(60)).dim());
-            
+
             workflow.patch().await?;
-            
+
             println!();
             println!("{}", style("━".repeat(60)).dim());
-            println!("{} Version bump completed successfully!", style("✓").green().bold());
+            println!(
+                "{} Version bump completed successfully!",
+                style("✓").green().bold()
+            );
             println!("{}", style("━".repeat(60)).dim());
             println!();
         }
