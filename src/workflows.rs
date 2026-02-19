@@ -39,68 +39,117 @@ impl Workflow {
     }
 
     pub fn display(&self) -> Result<()> {
-        self.process(|path, captures| {
-            for capture in captures {
-                let data = capture.get(1).unwrap();
-                let start = data.start();
-                let end = data.end();
+        use std::sync::{Arc, Mutex};
+        let file_count = Arc::new(Mutex::new(0));
+        let match_count = Arc::new(Mutex::new(0));
+        
+        let fc = file_count.clone();
+        let mc = match_count.clone();
+        
+        self.process(move |path, captures| {
+            if !captures.is_empty() {
+                *fc.lock().unwrap() += 1;
+                
+                // Print file header
+                println!("  {} {}", style("📄").dim(), style(path.display()).cyan());
+                
+                for capture in captures {
+                    *mc.lock().unwrap() += 1;
+                    let data = capture.get(1).unwrap();
+                    let start = data.start();
 
-                match &self.mode {
-                    WorkflowMode::Display => {
-                        info!(
-                            "{:>8} :: {}#{}",
-                            style(data.as_str()).red(),
-                            path.display(),
-                            start
-                        );
-                    }
-                    WorkflowMode::Bump { version, .. } => {
-                        info!(
-                            "{:>8} -> {:<8} :: {}#{}-{}",
-                            style(data.as_str()).red(),
-                            style(version).green(),
-                            path.display(),
-                            start,
-                            end
-                        );
-                    }
-                    _ => {}
-                };
+                    match &self.mode {
+                        WorkflowMode::Display => {
+                            println!(
+                                "     {} {} (line position: {})",
+                                style("→").dim(),
+                                style(data.as_str()).red().bold(),
+                                style(start).dim()
+                            );
+                        }
+                        WorkflowMode::Bump { version, .. } => {
+                            println!(
+                                "     {} {} {} {}",
+                                style("→").dim(),
+                                style(data.as_str()).red(),
+                                style("→").green(),
+                                style(version).green().bold()
+                            );
+                        }
+                        _ => {}
+                    };
+                }
+                println!();
             }
             Ok(())
         })?;
+        
+        let files = *file_count.lock().unwrap();
+        let matches = *match_count.lock().unwrap();
+        
+        println!("{}", style("─".repeat(60)).dim());
+        println!("  {} files with {} version references", 
+                 style(files).cyan().bold(), 
+                 style(matches).cyan().bold());
+        
         Ok(())
     }
 
     /// Patch Mode - Update the versions
     pub async fn patch(&self) -> Result<()> {
-        self.process(|path, captures| {
+        use std::sync::{Arc, Mutex};
+        let file_count = Arc::new(Mutex::new(0));
+        let update_count = Arc::new(Mutex::new(0));
+        
+        let fc = file_count.clone();
+        let uc = update_count.clone();
+        
+        self.process(move |path, captures| {
             let mut content = std::fs::read_to_string(&path)?;
+            let mut file_updated = false;
 
             for capture in captures {
                 let data = capture.get(1).unwrap();
                 let start = data.start();
                 let end = data.end();
 
-                let location = format!("{}#{}-{}", path.display(), start, end);
-
                 if let WorkflowMode::Bump { version, .. } = &self.mode {
-                    info!(
-                        "{:>8} -> {:<8} :: {}",
+                    if !file_updated {
+                        println!("  {} {}", style("📝").cyan(), style(path.display()).bold());
+                        file_updated = true;
+                        *fc.lock().unwrap() += 1;
+                    }
+                    
+                    println!(
+                        "     {} {} {} {}",
+                        style("✓").green(),
                         style(data.as_str()).red(),
-                        style(version.clone()).green(),
-                        location
+                        style("→").dim(),
+                        style(version.clone()).green().bold()
                     );
 
                     content.replace_range(start..end, version.to_string().as_str());
+                    *uc.lock().unwrap() += 1;
                 };
             }
 
             // Write content back to file
-            std::fs::write(&path, content)?;
+            if file_updated {
+                std::fs::write(&path, content)?;
+                println!();
+            }
 
             Ok(())
         })?;
+        
+        let files = *file_count.lock().unwrap();
+        let updates = *update_count.lock().unwrap();
+        
+        println!("{}", style("─".repeat(60)).dim());
+        println!("  {} files updated with {} changes", 
+                 style(files).cyan().bold(), 
+                 style(updates).cyan().bold());
+        
         Ok(())
     }
 
