@@ -14,21 +14,27 @@ pub const BANNER: &str = r#"______     _       _    ______     _                
 \_|  \__,_|\__\___|_| |_\_| \_\___|_|\___|\__,_|___/\___\_|  |_/\___|"#;
 
 #[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
+#[command(
+    author,
+    version,
+    about = "A tool to automate version bumping across multiple file types in your project",
+    long_about = "Patch Release Me automatically updates version numbers in your project files.\n\
+                  Run without a subcommand to enter interactive mode."
+)]
 pub struct Arguments {
-    /// Enable Debugging
+    /// Enable debug logging for troubleshooting
     #[clap(long, env, default_value_t = false)]
     pub debug: bool,
 
-    /// Disable Banner
+    /// Hide the ASCII banner on startup
     #[clap(long, default_value_t = false)]
     pub disable_banner: bool,
 
-    /// Project Root
+    /// Path to your project root directory
     #[clap(short, long, env, default_value = ".")]
     pub root: PathBuf,
 
-    /// Configuration file path
+    /// Path to the release configuration file
     #[clap(short, long, env, default_value = ".release.yml")]
     pub config: PathBuf,
 
@@ -39,39 +45,72 @@ pub struct Arguments {
 
 #[derive(Subcommand, Debug)]
 pub enum ArgumentCommands {
+    /// Initialize a new .release.yml configuration file
+    #[command(about = "Create a new configuration file for version management")]
     Init {
-        #[clap(short, long, env)]
+        /// Project name (defaults to current directory name)
+        #[clap(short, long, env, help = "Set the project name")]
         name: Option<String>,
 
-        #[clap(short, long, env)]
+        /// Initial version number (e.g., 0.1.0)
+        #[clap(short, long, env, help = "Set the starting version")]
         version: Option<String>,
 
-        #[clap(short, long, env)]
+        /// Programming languages/ecosystems to include (e.g., Rust, Python, Docker)
+        #[clap(
+            short,
+            long,
+            env,
+            help = "Specify ecosystems: Rust, Python, Node, Docker, etc."
+        )]
         language_ecosystems: Vec<String>,
 
-        #[clap(short, long, env, default_value = "false")]
+        /// Include default patterns for common files
+        #[clap(
+            short,
+            long,
+            env,
+            default_value = "false",
+            help = "Enable default file patterns"
+        )]
         defaults: Option<bool>,
     },
+
+    /// Show what files and versions would be updated (dry-run)
+    #[command(about = "Preview changes without modifying files")]
     Display,
+
+    /// Sync all files to the current version in .release.yml
+    #[command(about = "Apply current version to all tracked files")]
     Sync,
+
+    /// Bump version and update all tracked files
+    #[command(about = "Increment version and update files")]
     Bump {
-        /// Set Version
-        #[clap(short, long, env, default_value = "")]
+        /// Manually set a specific version (e.g., 1.2.3)
+        #[clap(
+            short,
+            long,
+            env,
+            default_value = "",
+            help = "Specify exact version to set"
+        )]
         set_version: String,
 
-        #[clap(short, long, env)]
+        /// Bump mode: major, minor, or patch
+        #[clap(short, long, env, help = "Choose: major, minor, or patch")]
         mode: Option<String>,
 
-        /// Update Patch version
-        #[clap(long, default_value = "true")]
+        /// Increment patch version (x.x.N+1) - default if no flags set
+        #[clap(long, default_value = "true", help = "Bump patch version (default)")]
         patch: bool,
 
-        /// Update Minor version
-        #[clap(long, default_value = "false")]
+        /// Increment minor version (x.N+1.0)
+        #[clap(long, default_value = "false", help = "Bump minor version")]
         minor: bool,
 
-        /// Update Major version
-        #[clap(long, default_value = "false")]
+        /// Increment major version (N+1.0.0)
+        #[clap(long, default_value = "false", help = "Bump major version")]
         major: bool,
     },
 }
