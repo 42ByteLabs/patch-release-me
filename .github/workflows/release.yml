@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      publish-artifacts:
+        description: "Republish release binaries and container even when the version already has a GitHub release"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -12,20 +18,20 @@ permissions:
 jobs:
   project:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/project.yml
-    uses: 42ByteLabs/.github/.github/workflows/project.yml@main
+    uses: 42ByteLabs/.github/.github/workflows/project.yml@865c36613799988f036ed780621e010ea0bd7750 # v0.14
     secrets: inherit
 
   cargo-publish:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/cargo-publish.yml
-    uses: 42ByteLabs/.github/.github/workflows/cargo-publish.yml@main
+    uses: 42ByteLabs/.github/.github/workflows/cargo-publish.yml@865c36613799988f036ed780621e010ea0bd7750 # v0.14
     secrets: inherit
     with:
       crate: patch-release-me
 
   cargo-binaries:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/cargo-binaries.yml
-    uses: 42ByteLabs/.github/.github/workflows/cargo-binaries.yml@main
-    if: ${{ needs.project.outputs.release == 'true' }}
+    uses: 42ByteLabs/.github/.github/workflows/cargo-binaries.yml@865c36613799988f036ed780621e010ea0bd7750 # v0.14
+    if: ${{ needs.project.outputs.release == 'true' || (github.event_name == 'workflow_dispatch' && inputs.publish-artifacts) }}
     needs: [project, cargo-publish]
     secrets: inherit
     permissions:
@@ -38,8 +44,8 @@ jobs:
 
   container-publish:
     # https://github.com/42ByteLabs/.github/blob/main/.github/workflows/container.yml
-    uses: 42ByteLabs/.github/.github/workflows/container.yml@main
-    if: ${{ needs.project.outputs.release == 'true' }}
+    uses: 42ByteLabs/.github/.github/workflows/container.yml@865c36613799988f036ed780621e010ea0bd7750 # v0.14
+    if: ${{ needs.project.outputs.release == 'true' || (github.event_name == 'workflow_dispatch' && inputs.publish-artifacts) }}
     needs: [project]
     secrets: inherit
     permissions:
