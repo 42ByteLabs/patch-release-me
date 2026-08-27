@@ -20,4 +20,5 @@ runs:
   image: "actions/Dockerfile"
   args:
     - bump
-    - -m "${{ inputs.mode }}"
+    - -m
+    - ${{ inputs.mode }}
