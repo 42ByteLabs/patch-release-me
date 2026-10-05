@@ -15,4 +15,4 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: "Run Action"
-        uses: 42ByteLabs/patch-release-me@c83b3f4d3b6e3ef6f1bb043bfa740ced577b19b7 # 0.6.7
+        uses: 42ByteLabs/patch-release-me@4cc285a9064b793244e2892c598af2c4e105d04a # 0.6.7
